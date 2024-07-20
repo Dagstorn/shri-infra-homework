@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Login to Yandex Container Registry
+      run: echo ${{ secrets.YANDEX_OAUTH_TOKEN }} | docker login --username oauth --password-stdin cr.yandex
+    
     - name: SSH and Deploy
       uses: appleboy/ssh-action@v0.1.4
       with:
