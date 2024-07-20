@@ -28,6 +28,19 @@ jobs:
           yc container registry configure-docker
           docker login -u oauth -p "$(yc iam create-token)" cr.yandex
           
+    - name: Stop and Remove Existing Container
+      uses: appleboy/ssh-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_KEY }}
+        script: |
+          existing_container=$(docker ps -q --filter ancestor=shri-infra)
+          if [ ! -z "$existing_container" ]; then
+            docker stop $existing_container
+            docker rm $existing_container
+          fi
+
     - name: SSH and Deploy
       uses: appleboy/ssh-action@v0.1.4
       with:
@@ -38,9 +51,14 @@ jobs:
           echo "Login to Yandex Container Registry"
           echo ${{ secrets.YANDEX_OAUTH_TOKEN }} | docker login --username oauth --password-stdin cr.yandex
           docker pull cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_latest
-          docker run -d -p 80:3000 cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_latest
+          container_id=$(docker run -d -p 3000:3000 cr.yandex/${{ secrets.REGISTRY_IDENTIFIER }}/app:${{ github.event.inputs.release_version }}_latest)
+          echo "Container ID: $container_id"
           echo "Docker running the app"
           docker ps
+          sleep 5
+          docker exec -it $container_id /bin/sh -c "ls -al /app"
+          sleep 2
+          docker logs $container_id
 
 env:
       YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
