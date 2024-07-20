@@ -38,4 +38,6 @@ COPY --from=build /usr/src/app/dist ./dist
 
 EXPOSE 3000
 
+RUN npm build:docker
+
 CMD npm start:docker
