@@ -1,43 +1,26 @@
-# syntax=docker/dockerfile:1
+FROM node:18-alpine AS build
 
-ARG NODE_VERSION=22.2.0
+WORKDIR /app
 
-FROM node:${NODE_VERSION}-alpine as base
+COPY package.json package-lock.json ./
 
-WORKDIR /usr/src/app
-
-FROM base as deps
-
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
-
-FROM deps as build
-
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci
+RUN npm install
 
 COPY . .
 
 RUN npm run build
 
-FROM base as final
+FROM node:18-alpine
 
-ENV NODE_ENV production
+WORKDIR /app
 
-USER node
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
+COPY --from=build /app/src /app/src
+COPY --from=build /app/package.json /app/package.json
 
-COPY package.json .
-
-COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/server .
-
+RUN npm install -g nodemon
 
 EXPOSE 3000
-
 
 CMD npm start
