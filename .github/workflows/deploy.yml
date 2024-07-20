@@ -37,6 +37,7 @@ jobs:
         script: |
           docker ps
           existing_container=$(docker ps -q --filter ancestor=cr.yandex/${{ secrets.REGISTRY_IDENTIFIER }}/app:${{ github.event.inputs.release_version }}_latest)
+          
           if [ ! -z "$existing_container" ]; then
             echo "Stopping existing container: $existing_container"
             docker stop $existing_container
