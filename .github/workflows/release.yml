@@ -25,14 +25,18 @@ jobs:
     - name: Run tests
       run: npm run test
 
+    - name: Login to Yandex Container Registry
+      run: echo ${{ secrets.YANDEX_OAUTH_TOKEN }} | docker login --username oauth --password-stdin cr.yandex
+
+
     - name: Build Docker image
-      run: docker build -t cr.yandex/crpohvkorh9buccodhle/app:${{ github.run_number }} .
+      run: docker build -t cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.run_number }} .
 
     - name: Tag Docker image
       run: |
-        docker tag cr.yandex/crpohvkorh9buccodhle/app:${{ github.run_number }} cr.yandex/crpohvkorh9buccodhle/app:${{ github.run_number }}_latest
-        docker push cr.yandex/crpohvkorh9buccodhle/app:${{ github.run_number }}
-        docker push cr.yandex/crpohvkorh9buccodhle/app:${{ github.run_number }}_latest
+        docker tag cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.run_number }} cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.run_number }}_latest
+        docker push cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.run_number }}
+        docker push cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.run_number }}_latest
 
     - name: Create release branch
       run: git checkout -b releases/${{ github.run_number }} && git push origin releases/${{ github.run_number }}
@@ -46,4 +50,4 @@ jobs:
           - Date: ${{ github.event.created_at }}
           - Author: ${{ github.actor }}
           - Version: ${{ github.run_number }}
-          - Docker Image: cr.yandex/crpohvkorh9buccodhle/app:${{ github.run_number }}
+          - Docker Image: cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.run_number }}
