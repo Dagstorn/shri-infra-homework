@@ -29,6 +29,9 @@ jobs:
     - name: Run tests
       run: npm run test
 
+    - name: Login to Yandex Container Registry
+      run: echo ${{ secrets.YANDEX_OAUTH_TOKEN }} | docker login --username oauth --password-stdin cr.yandex
+
     - name: Build Docker image
       run: docker build -t cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_fix${{ github.run_number }} .
 
