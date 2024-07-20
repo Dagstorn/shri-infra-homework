@@ -29,6 +29,7 @@ jobs:
           exec -l $SHELL
           yc init --iam-token ${{ secrets.YC_OAUTH_TOKEN }} --cloud-id ${{ secrets.YC_CLOUD_ID }} --folder-id ${{ secrets.YC_FOLDER_ID }}
           yc container registry configure-docker
+          docker login -u oauth -p "$(yc iam create-token)" cr.yandex
           
     - name: SSH and Deploy
       uses: appleboy/ssh-action@v0.1.4
