@@ -35,11 +35,9 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_KEY }}
         script: |
+          echo "currently we have"
           docker ps
-          echo cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_latest
           existing_container=$(docker ps -q)
-          echo "existing container:"
-          echo $existing_container
           if [ ! -z "$existing_container" ]; then
             echo "Stopping existing container: $existing_container"
             docker stop $existing_container
@@ -62,8 +60,6 @@ jobs:
           echo "Docker running the app"
           docker ps
           sleep 5
-          docker exec -it $container_id /bin/sh -c "ls -al /app"
-          sleep 2
           docker logs $container_id
 
 env:
