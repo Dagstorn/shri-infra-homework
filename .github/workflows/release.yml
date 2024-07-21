@@ -41,19 +41,6 @@ jobs:
     - name: Create release branch
       run: git checkout -b releases/${{ github.run_number }} && git push origin releases/${{ github.run_number }}
     
-    - name: Generate Changelog
-      run: |
-        echo ${{ github.run_number }} > CHANGELOG.md
-    
-    - name: Commit and Push Changelog
-      run: |
-        git config --global user.name 'github-actions'
-        git config --global user.email 'github-actions@github.com'
-        git checkout -b update-changelog-v${{ github.run_number }}
-        git add CHANGELOG.md
-        git commit -m "Update changelog for release v${{ github.run_number }}"
-        git push origin update-changelog-v${{ github.run_number }}
-    
     - name: Create Pull Request for Changelog
       run: |
         echo "## Release ${{ github.run_number }} - $(date +%Y-%m-%d)" > release_changelog.md
