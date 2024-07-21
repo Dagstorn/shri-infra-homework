@@ -43,8 +43,7 @@ jobs:
     
     - name: Generate Changelog
       run: |
-        echp ${{ github.run_number }} > changelog.txt
-        echp ${{ github.run_number }} > CHANGELOG.md
+        echo ${{ github.run_number }} > CHANGELOG.md
     
     - name: Commit and Push Changelog
       run: |
