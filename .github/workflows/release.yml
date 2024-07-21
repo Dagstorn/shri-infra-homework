@@ -55,21 +55,23 @@ jobs:
         git push origin update-changelog-v${{ github.run_number }}
     
     - name: Create Pull Request for Changelog
-      uses: actions/github-script@v5
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const { context, github } = require('@actions/github-script');
-          const pullRequest = await github.rest.pulls.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: `Update changelog for release v${{ github.run_number }}`,
-            head: `update-changelog-v${{ github.run_number }}`,
-            base: 'main',
-            body: 'This PR updates the changelog for release v${{ github.run_number }}.',
-          });
-          console.log(`Created pull request: ${pullRequest.data.html_url}`);
-          
+      run: |
+        echo "## Release ${{ github.run_number }} - $(date +%Y-%m-%d)" > release_changelog.md
+        echo "${{ steps.get-commits.outputs.commits }}" >> release_changelog.md
+        cat CHANGELOG.md >> release_changelog.md
+        mv release_changelog.md CHANGELOG.md
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git checkout -b update-changelog-v${{ github.run_number }}
+        git add CHANGELOG.md
+        git commit -m "Update CHANGELOG.md for release v${{ github.run_number }}"
+        git push origin update-changelog-v${{ github.run_number }}
+
+        curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_PAT_TOKEN }}" \
+            -d '{"title":"Update CHANGELOG for release v${{ github.run_number }}","head":"update-changelog-v${{ github.run_number }}","base":"main"}' \
+            https://api.github.com/repos/${{ github.repository }}/pulls
+    
     - name: Create release issue
       uses: actions/github-script@v5
       with:
