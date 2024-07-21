@@ -4,7 +4,6 @@ import { Order, Product, ProductShortInfo } from '../common/types';
 export const faker = new Faker({
     locale: [en],
 });
-const unusedVariable = 42;
 
 const commerce = faker.commerce;
 const cats = faker.animal;
