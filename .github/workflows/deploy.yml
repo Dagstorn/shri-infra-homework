@@ -37,7 +37,7 @@ jobs:
         script: |
           docker ps
           echo cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_latest
-          existing_container=$(docker ps -q --filter ancestor=cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_latest)
+          existing_container=$(docker ps -q)
           echo "existing container:"
           echo $existing_container
           if [ ! -z "$existing_container" ]; then
