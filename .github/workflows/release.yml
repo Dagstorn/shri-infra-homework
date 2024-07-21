@@ -40,15 +40,41 @@ jobs:
 
     - name: Create release branch
       run: git checkout -b releases/${{ github.run_number }} && git push origin releases/${{ github.run_number }}
+    
+    - name: Generate Changelog
+      run: |
+        echp ${{ github.run_number }} > changelog.txt
+        echp ${{ github.run_number }} > CHANGELOG.md
+    
+    - name: Commit and Push Changelog
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add CHANGELOG.md
+        git commit -m "Update changelog for release v${{ github.run_number }}"
+        git push origin HEAD:main
 
     - name: Create release issue
-      uses: actions-ecosystem/action-create-issue@v1
+      uses: actions/github-script@v5
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        title: Release ${{ github.run_number }}
-        body: |
-          Release details:
-          - Date: ${{ github.event.created_at }}
-          - Author: ${{ github.actor }}
-          - Version: ${{ github.run_number }}
-          - Docker Image: cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.run_number }}
+        script: |
+          const fs = require('fs');
+          const releaseDate = new Date().toISOString().split('T')[0];
+          const author = '${{ github.actor }}';
+          const version = '${{ github.run_number }}';
+          const dockerImage = `cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${version}`;
+          const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+          github.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Release v${version}`,
+            body: `
+              **Release Date**: ${releaseDate}
+              **Author**: ${author}
+              **Version**: v${version}
+              **Docker Image**: ${dockerImage}
+
+              ## Changelog
+              ${changelog}
+            `
+          });
