@@ -49,9 +49,10 @@ jobs:
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
+        git checkout -b update-changelog-v${{ github.run_number }}
         git add CHANGELOG.md
         git commit -m "Update changelog for release v${{ github.run_number }}"
-        git push origin HEAD:main
+        git push origin update-changelog-v${{ github.run_number }}
 
     - name: Create release issue
       uses: actions/github-script@v5
