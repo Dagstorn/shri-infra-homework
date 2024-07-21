@@ -59,8 +59,8 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const { context, github } = require('@actions/github');
-          const { data: pullRequest } = await github.rest.pulls.create({
+          const { github, context } = require('@actions/github');
+          const pullRequest = await github.rest.pulls.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
             title: `Update changelog for release v${{ github.run_number }}`,
@@ -68,7 +68,7 @@ jobs:
             base: 'main',
             body: 'This PR updates the changelog for release v${{ github.run_number }}.',
           });
-          console.log(`Created pull request: ${pullRequest.html_url}`);
+          console.log(`Created pull request: ${pullRequest.data.html_url}`);
           
     - name: Create release issue
       uses: actions/github-script@v5
