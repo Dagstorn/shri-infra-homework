@@ -53,6 +53,15 @@ jobs:
         git add CHANGELOG.md
         git commit -m "Update changelog for release v${{ github.run_number }}"
         git push origin update-changelog-v${{ github.run_number }}
+    
+    - name: Create Pull Request for Changelog
+      uses: peter-evans/create-pull-request@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update changelog for release v${{ github.run_number }}"
+        branch: update-changelog-v${{ github.run_number }}
+        title: "Update changelog for release v${{ github.run_number }}"
+        body: "This PR updates the changelog for release v${{ github.run_number }}."
 
     - name: Create release issue
       uses: actions/github-script@v5
@@ -64,7 +73,7 @@ jobs:
           const version = '${{ github.run_number }}';
           const dockerImage = `cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${version}`;
           const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
-          github.issues.create({
+          await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
             title: `Release v${version}`,
