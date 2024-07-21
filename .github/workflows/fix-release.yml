@@ -42,7 +42,7 @@ jobs:
         docker push cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_latest
 
     - name: Create fix release issue
-      uses: actions-ecosystem/action-create-issue@v1
+      uses: actions/github-script@v5
       with:
         script: |
           const fs = require('fs');
