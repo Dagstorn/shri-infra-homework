@@ -44,11 +44,25 @@ jobs:
     - name: Create fix release issue
       uses: actions-ecosystem/action-create-issue@v1
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        title: Fix Release ${{ github.event.inputs.release_version }}_fix${{ github.run_number }}
-        body: |
-          Fix Release details:
-          - Date: ${{ github.event.created_at }}
-          - Author: ${{ github.actor }}
-          - Fix Version: ${{ github.run_number }}
-          - Docker Image: cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_fix${{ github.run_number }}
+        script: |
+          const fs = require('fs');
+          const releaseDate = new Date().toISOString().split('T')[0];
+          const author = '${{ github.actor }}';
+          const version = '${{ github.run_number }}';
+          const dockerImage = `cr.yandex/${{ secrets.YANDEX_CONTAINER_REGISTRY_ID }}/app:${{ github.event.inputs.release_version }}_fix${{ github.run_number }}`;
+          const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Release v${version}`,
+            body: `
+              ## Fix Release details:
+              **Date**: ${releaseDate}
+              **Author**: ${author}
+              **Fix Version**: v${version}
+              **Docker Image**: ${dockerImage}
+
+              ## Changelog
+              ${changelog}
+            `
+          });
