@@ -54,7 +54,7 @@ jobs:
           await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            title: `Release v${version}`,
+            title: `Fix Release v${version}`,
             body: `
               ## Fix Release details:
               **Date**: ${releaseDate}
