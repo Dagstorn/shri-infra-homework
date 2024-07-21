@@ -68,7 +68,7 @@ jobs:
         git push origin update-changelog-v${{ github.run_number }}
 
         curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_PAT_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
             -d '{"title":"Update CHANGELOG for release v${{ github.run_number }}","head":"update-changelog-v${{ github.run_number }}","base":"main"}' \
             https://api.github.com/repos/${{ github.repository }}/pulls
     
